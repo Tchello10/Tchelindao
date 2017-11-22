@@ -9,46 +9,94 @@ int ReiniciaMapa (int matriz [MAX][MAX], char resp[], int l, int c);
 
 int main() {
 	//Variaveis da matriz
-	int c, l, i,tamanho, j, k, m, vezes, t, nvivos;
+	int c = MAX, l = MAX, i,tamanho, j, k, m, vezes, t, nvivos;
+	int matriz [MAX] [MAX], matriz2[MAX][MAX];
 
 	//Variável da sentinela
-	char resp[1], rein, salvar;
+	char resp[1], rein, salvar, carregar;
 
 	//Inicialização
 	resp[0] = 's';
 	nvivos = 0;
 
 	//Informando o usuário o limite da matriz
-	printf("O limite das linhas e colunas da matriz e 100x100\n");
-	printf("-------------------------------------------------\n\n");
+	
+	for (i=0; i<l; i++){
+		for (j=0 ; j<c; j++){
+			matriz[i][j]= matriz2[i][j] = 0;			
+		}
+	}
+	
+	printf("\n \nDeseja carregar o ultimo jogo?(S/N)");
+	carregar = getch();
+	if(carregar == 'S' ||carregar == 's' ){		
+		
+		printf("\n\nLendo arquivo...\n\n");
 
-	printf("Insira o tamanho do mundo: ");
-	scanf("%d", &tamanho);
-
+	    int linha, coluna;
+	    FILE *arq2;
+	    char url[] = "recJogodaVida.txt";
+	    
+	    arq2 = fopen(url, "r");
+	    if(arq2 == NULL)
+	            printf("Erro, nao foi possivel abrir o arquivo\n");
+	    else
+	        if((fscanf(arq2,"Tamanho: %d\n", &tamanho)) != EOF){
+	            printf("Tamanho: %d\n", tamanho);
+	        }        
+	
+	        while( (fscanf(arq2,"Linha [%d] - Coluna [%d]\n", &linha, &coluna)) != EOF){
+	        	linha = linha -1; coluna = coluna - 1;
+	            matriz[linha][coluna] = matriz2[linha][coluna] = 1;
+	            printf("Alguem vivo na possicao -> Linha: %d Coluna: %d\n", linha, coluna);
+	        }    
+	    fclose(arq2);	
+	    
+	}else {
+		
+		printf ("\n\n");
+		printf("O limite das linhas e colunas da matriz e 100x100\n");
+		printf("-------------------------------------------------\n\n");
+		printf("Insira o tamanho do mundo de no maximo 100: ");
+		scanf("%d", &tamanho);
+		
+		c = tamanho;
+		l = tamanho;
+		
+		for (i=0; i<l; i++){
+			for (j=0 ; j<c; j++){
+				printf(" %d", matriz [i][j]);
+			}
+			printf("\n");
+		}		
+	
+		ReiniciaMapa (matriz, resp, l, c);				
+	}
+	
 	c = tamanho;
 	l = tamanho;
+	
+	printf ("\n\n");
 
-
-	int matriz [MAX] [MAX], matriz2[MAX][MAX];
+	
 
 	//Imprime a matriz e atribui valor 0
 	for (i=0; i<l; i++){
 		for (j=0 ; j<c; j++){
-			matriz[i][j]= matriz2[i][j] = 0;
 			printf(" %d", matriz [i][j]);
 		}
 		printf("\n");
 	}
 
-	ReiniciaMapa (matriz, resp, l, c);
+	resp[0] = 'n';
 
  	printf("\n\n");
 
-	if(resp[0] == 'n'){
+	if(resp[0] == 'n' || resp[0] == 'N'){
 		printf("Deseja reiniciar o mapa?");
 		scanf("%s", &rein);
 	}
-	if (rein == 's'){
+	if (rein == 's' || rein == 'S'){
 		ReiniciaMapa (matriz, resp, l , c);
 	}
 
@@ -67,21 +115,24 @@ int main() {
         }
     }
 
-	printf("Insira o numero de vezes que deseja a simulacao:");
+	printf("\n \nInsira o numero de vezes que deseja a simulacao:");
 	scanf("%d", &vezes);
 
-	for(t = 0; t < vezes; t++){
-
-		printf("\n--------- Evolucao: %d ----------\n", t+1);
+	printf("\n--------- Primeira Geracao :D ----------\n\n", t+1);
 
 		for(i = 0;i < l; i++){
             for(j = 0;j < c; j++){
-                printf("%d", matriz2[i][j]);
+                printf(" %d", matriz2[i][j]);
             }
             printf("\n");
         }
 
         printf("\n");
+
+
+	for(t = 0; t < vezes; t++){
+
+		
 
 
 		for (i = 0; i < l; i++){
@@ -137,11 +188,25 @@ int main() {
                 matriz[i][j] = matriz2[i][j];
             }
         }
+        
+        printf("\n--------- Evolucao: %d ----------\n\n", t+1);
+
+		for(i = 0;i < l; i++){
+            for(j = 0;j < c; j++){
+                printf(" %d", matriz2[i][j]);
+            }
+            printf("\n");
+        }
+
+        printf("\n");
+        
 
 	}
+	
+	
 
 
-printf("Voce deseja salvar?(S/N)");
+printf("\n \nVoce deseja salvar?(S/N)");
 salvar = getch();
 if(salvar == 'S' ||salvar == 's' ){
 	char mundo[100]; // Variavel do tipo char que vai ser impressa no arquivo	
@@ -149,7 +214,7 @@ if(salvar == 'S' ||salvar == 's' ){
 
 	FILE *arq; // Declarando o arquivo
 
-	int result; // variavel para auxiliar na manipulacao do arquivo
+	int result, contador = 0; // variavel para auxiliar na manipulacao do arquivo
 
 	arq = fopen("recJogodaVida.txt", "wt"); // Comando para abrir o arquivo onde recSuperElisa e o nome do arquivo, e "wt" e o modo para abrir o arquivo
 	
@@ -159,22 +224,29 @@ if(salvar == 'S' ||salvar == 's' ){
 
 
 
-	for(i=0; i< tamanho;i++){
-		for(c=0; c< tamanho; c++){
-			if(matriz[i][c]==1){ // If para saber qual a posicao dos vivos, no meu caso 1 sao os vivos
-				//printf("%d - %d", i,c);
-				//printf("\n");				
-				sprintf(mundo, "%d - %d \n", i,c );// colocando na variavel elisa o que esta nos parenteses como se fosse um printf
-				printf("%d-%d \n", i,c ); // exibindo a posicao dos bixo vivos
-				result = fputs(mundo,arq);	// colocando no arquivo a variavel elisa
-			}
-		}
-	}
+	printf("\n\nSalvando arquivo...\n");
 
-fclose(arq); // fechando o arquivo
+    sprintf(mundo, "Tamanho: %d\n", tamanho);
+    printf("Tamanho: %d\n", tamanho);
+    result = fputs(mundo, arq);
+
+    for(i=0; i < tamanho;i++){
+        for(j=0; j< tamanho; j++){;
+            if(matriz2[i][j] == 1){                
+                sprintf(mundo, "Linha [%d] - Coluna [%d]\n", i+1,j+1);
+                printf("Linha [%d] Coluna [%d]\n", i+1,j+1 );
+                result = fputs(mundo,arq);
+                contador++;
+            }
+        }       
+    }
+    fclose(arq);
+    printf("Gravacao concluida com sucesso\nSeres Vivos gravados: %d\n", contador);
 }
 
 }
+
+
 int ReiniciaMapa (int matriz [MAX][MAX], char resp[], int l, int c){
 	int i, j, x, y,k, m;
 
